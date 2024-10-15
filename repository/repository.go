@@ -14,22 +14,20 @@ type NftMetadataEntry struct {
   ImageId string `json:"imageId"`
 }
 
-var db *sql.DB;
 
-func InitSqliteConnection(dbPath string) error {
-  conn, err := sql.Open("sqlite3", dbPath);
+func InitSqliteConnection(dbPath string) (*sql.DB, error) {
+  db, err := sql.Open("sqlite3", dbPath);
   if err != nil {
-    return err
+    return nil, err
   }
-  db = conn
   _, err = db.Exec("create table if not exists metadata (id text not null primary key, description text, imageId text)");
   if err != nil {
-    return err
+    return nil, err
   }
-  return nil
+  return db, nil
 }
 
-func InsertMetadata(description string) (*NftMetadataEntry, error) {
+func InsertMetadata(db *sql.DB, description string) (*NftMetadataEntry, error) {
   if db == nil {
     log.Panicln("Accessed db without initializing connection");
   }
@@ -52,7 +50,7 @@ func InsertMetadata(description string) (*NftMetadataEntry, error) {
   return &entry, nil
 }
 
-func GetMetadata(id string) (*NftMetadataEntry, error) {
+func GetMetadata(db *sql.DB, id string) (*NftMetadataEntry, error) {
   if db == nil {
     log.Panicln("Accessed db without initializing connection");
   }

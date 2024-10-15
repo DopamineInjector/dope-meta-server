@@ -11,12 +11,14 @@ import (
 )
 
 const DEFAULT_PORT = "5138"
+const DEFAULT_DB = "./nft.db"
+const DEFAULT_STORAGE = "./data/"
 
 func main() {
 	log.Infoln("Starting dopechain nft metadata server")
-	routes := routing.GetRoutes()
-  db_path := utils.GetEnvWithDefaults("DB_PATH", "./nft.db");
-  err := repository.InitSqliteConnection(db_path);
+  storagePath := utils.GetEnvWithDefaults("STORAGE_PATH", DEFAULT_STORAGE);
+  db_path := utils.GetEnvWithDefaults("DB_PATH", DEFAULT_DB);
+  db, err := repository.InitSqliteConnection(db_path);
   if err != nil {
     log.Fatalf("Aborting. Could not establish DB connection, reason: %s", err.Error());
   }
@@ -24,6 +26,7 @@ func main() {
 	port := utils.GetEnvWithDefaults("PORT", DEFAULT_PORT)
 	log.Infof("Starting to listen on port %s", port)
 	port = fmt.Sprintf(":%s", port)
+	routes := routing.GetRoutes(db, storagePath);
 	err = http.ListenAndServe(port, routes)
 	if err != nil {
 		log.Fatalf("Error while running server: %s", err.Error())
