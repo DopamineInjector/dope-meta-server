@@ -1,16 +1,17 @@
-FROM golang:1.23.1-alpine AS builder-base
-RUN apk add build-base
+FROM golang:1.23.1 AS builder-base
+RUN apt update && apt install build-essential -y
 
+FROM debian:bookworm AS release-base
+RUN apt update && apt install sqlite3 -y
 
-FROM builder-base AS build-stage
+FROM builder-base AS builder
 COPY . /app
 WORKDIR /app
 RUN go mod download
-RUN CGO_ENABLED=1 GOOS=linux go build -o /entrypoint
+RUN go build -o /entrypoint
 
-FROM gcr.io/distroless/static-debian11 AS release-stage
+FROM release-base AS release
 WORKDIR /
-COPY --chown=nonroot --from=build-stage /entrypoint /entrypoint
+COPY --from=builder /entrypoint /entrypoint
 EXPOSE 5138
-USER nonroot:nonroot
 ENTRYPOINT ["/entrypoint"]
