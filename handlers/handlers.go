@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -73,6 +74,7 @@ func HandlePostImage(w http.ResponseWriter, r* http.Request, storagePath string)
     http.Error(w, "invalid uuid format", 400);
     return;
   }
+  log.Println(id)
   body, err := io.ReadAll(r.Body);
   if err != nil {
     http.Error(w, "invalid request body", 400);
