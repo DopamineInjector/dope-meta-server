@@ -6,6 +6,7 @@ import (
 	"dope-meta-serv/utils"
 	"fmt"
 	"net/http"
+	"os"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -17,6 +18,7 @@ const DEFAULT_STORAGE = "./data/"
 func main() {
 	log.Infoln("Starting dopechain nft metadata server")
   storagePath := utils.GetEnvWithDefaults("STORAGE_PATH", DEFAULT_STORAGE);
+  os.Mkdir(storagePath, 0755);
   db_path := utils.GetEnvWithDefaults("DB_PATH", DEFAULT_DB);
   db, err := repository.InitSqliteConnection(db_path);
   if err != nil {
